@@ -1,7 +1,6 @@
 import assemblyai as __aai
 import config as __cfg
 
-
 __aai.settings.api_key = __cfg.speech_recognition_token
 
 __config = __aai.TranscriptionConfig(
@@ -12,9 +11,12 @@ __config = __aai.TranscriptionConfig(
 __transcriber = __aai.Transcriber(config=__config)
 
 
-def recognize(audio_file):
-    """Recognition file.
+def recognize(audio_file) -> str | None:
+    """
+    RECOGNIZE FUNCTION
 
-    audio_file  :file to recognize"""
+    :param audio_file: file with audio to recognize
+    :return:
+    """
     result = __transcriber.transcribe(audio_file).text
     return result
