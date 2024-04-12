@@ -1,3 +1,4 @@
+/audio/
 tests/output.wav
 config.py
 .gitignore
