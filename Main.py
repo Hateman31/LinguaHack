@@ -3,6 +3,7 @@ import config as __cfg
 import recognition
 import asyncio
 import json
+import os
 
 with open('users_states.json', 'r+') as f:
     states = json.load(f)
@@ -71,6 +72,8 @@ async def get_voice(msg):
     else:
         print(f'\033[32mRecognition finished! Text: \033[0m{text}')
         await bot.reply_to(msg, text)
+
+    os.remove(fpath)
 
 
 asyncio.run(bot.polling())
