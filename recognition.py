@@ -20,4 +20,6 @@ def recognize(audio_file) -> str | None:
     :return:
     """
     result = __transcriber.transcribe(audio_file).text
+    if result == "":
+        return "empty"
     return result

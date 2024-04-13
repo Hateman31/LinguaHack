@@ -19,7 +19,13 @@ def reset_state(user_id):
             json.dump(data, jsonFile, indent=4)
             jsonFile.truncate()
         else:
-            print(f"Cannot reset: user {user_id} not found.")
+            print(f"\033[31m\033[1mCannot reset: user {user_id} not found.")
+
+
+def get_state(user_id):
+    with open("users_states.json", "r+") as jsonFile:
+        data = json.load(jsonFile)
+        return data[str(user_id)]
 
 
 def next_state(user_id):
@@ -37,37 +43,34 @@ def next_state(user_id):
             jsonFile.truncate()
 
 
-# There is problem
 @bot.message_handler(content_types=['voice'])
 async def get_voice(msg):
-    try:
-        user_stat = states[str(msg.from_user.id)]
-        if user_stat != 4:
-            print(f"Rejected voice func to user {msg.from_user.id}: {msg.from_user.username}")
-            return
-        else:
-            print(f"Accepted voice func to user {msg.from_user.id}: {msg.from_user.username}")
+    if get_state(msg.from_user.id) != 4:
+        print(f"\033[31mRejected voice func to user {msg.from_user.id}: {msg.from_user.username}, "
+              f"state {get_state(msg.from_user.id)}")
+        return
+    else:
+        print(f"\033[32mAccepted voice func to user {msg.from_user.id}: {msg.from_user.username}")
 
-        # There
-        file_info = await bot.get_file(msg.voice.file_id)
-        downloaded_file = await bot.download_file(file_info.file_unique_id)
+    file_info = await bot.get_file(msg.voice.file_id)
+    downloaded_file = await bot.download_file(file_info.file_path)
 
-        print('Downloading file...')
+    print('\033[33mDownloading file...')
 
-        fpath = f'./audio/{file_info.file_unique_id}.ogg'
+    fpath = f'./audio/{file_info.file_unique_id}.ogg'
 
-        with open(fpath, 'wb') as new_file:
-            new_file.write(downloaded_file)
+    with open(fpath, 'wb') as new_file:
+        new_file.write(downloaded_file)
 
-        print('File downloaded. Start recognition...')
-        text = recognition.recognize(fpath)
-        print(f'Recognition finished! Text: {text}')
-
-        await bot.send_message(msg.chat.id, text)
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        await bot.send_message(msg.chat.id, "Something went wrong... Try again later.")
+    print(f'\033[33mFile downloaded. Start recognition {fpath}... ')
+    text = recognition.recognize(fpath)
+    if text == "empty":
+        print(f"Message from {msg.from_user.id}: {msg.from_user.username} - is empty.")
+        await bot.reply_to(msg, "Please, say something in voice message.\n"
+                                "(Пожалуйста, скажите что-нибудь в голосовом сообщении.)")
+    else:
+        print(f'\033[32mRecognition finished! Text: \033[0m{text}')
+        await bot.reply_to(msg, text)
 
 
 asyncio.run(bot.polling())
