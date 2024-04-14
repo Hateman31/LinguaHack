@@ -1,0 +1,1 @@
+conn_str = 'dbname=lingua_test user=postgres password=1271020 port=5555'
