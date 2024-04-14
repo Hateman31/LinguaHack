@@ -6,12 +6,20 @@ __aai.settings.api_key = __cfg.speech_recognition_token
 
 __config = __aai.TranscriptionConfig(
     language_detection=False,
-    language_code="ru"
+    language_code=__aai.LanguageCode.ru
 )
 
 __transcriber = __aai.Transcriber(config=__config)
 
 
-def recognize(audio_file):
+def recognize(audio_file) -> str | None:
+    """
+    RECOGNIZE FUNCTION
+
+    :param audio_file: file with audio to recognize
+    :return:
+    """
     result = __transcriber.transcribe(audio_file).text
+    if result == "":
+        return "empty"
     return result

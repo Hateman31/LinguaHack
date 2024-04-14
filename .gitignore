@@ -1,4 +1,11 @@
+/audio/
+tests/output.wav
 config.py
+.gitignore
+.idea
+.venv
+Pipfile
+Pipfile.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
