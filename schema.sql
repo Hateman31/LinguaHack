@@ -2,6 +2,7 @@
 CREATE TABLE quizzes (
     quiz_id Serial PRIMARY KEY ,
     title VARCHAR(255),
+    subtitle_file_id BIGINT,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -39,4 +40,10 @@ CREATE TABLE user_answers (
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
     FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE,
     FOREIGN KEY (chosen_option_id) REFERENCES options(option_id) ON DELETE CASCADE
+);
+
+CREATE TABLE USERS(
+    user_id int PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_quiz_id BIGINT
 );
