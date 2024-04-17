@@ -3,7 +3,7 @@ CREATE TABLE quizzes (
     quiz_id Serial PRIMARY KEY ,
     title VARCHAR(255),
     subtitle_file_id BIGINT,
-    description TEXT,
+    description TEXT
     -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -43,7 +43,7 @@ CREATE TABLE user_answers (
 );
 
 CREATE TABLE USERS(
-    user_id int PRIMARY KEY,
+    user_id BIGINT PRIMARY KEY,
     first_name VARCHAR(100),
     quiz_id BIGINT
 );
