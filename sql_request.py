@@ -1,7 +1,7 @@
 sql_request_lib = {'available_quest': """
                                     SELECT question_text, question_id FROM public.questions
                                     LEFT JOIN (SELECT * FROM public.user_answers
-											   WHERE user_id = %s)
+											   WHERE user_id = %s) as user_ans
                                     USING (question_id)
                                     WHERE questions.quiz_id = %s and user_answer_id IS NULL""",
                    'check_quiz_id': """

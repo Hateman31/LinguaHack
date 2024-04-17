@@ -89,7 +89,7 @@ async def issue_of_quizzes(query):
     else:
         user_quiz_id = is_registered[0]
     # user_quiz_id - хранит на каком квизе пользователь
-    print("ID квиза, пользователя:", user_quiz_id, "в users_states -", )
+    # print("ID квиза, пользователя:", user_quiz_id, "в users_states -", )
 
     button = types.InlineKeyboardButton('Пройти квиз☕', callback_data=f'quest_{user_quiz_id}')
     kb = types.InlineKeyboardMarkup().add(button)
@@ -107,15 +107,15 @@ async def issue_of_questions(query):
     available_questions = sql_handler.get_available_quest(__cfg.config_sql, sql_request.sql_request_lib['available_quest'],
                                                           query.from_user.id, quiz_id)
 
-    print(quiz_id)
+    # print(quiz_id)
     if query.data[6:] == f'{quiz_id}' and available_questions:
-        print(available_questions)
+        # print(available_questions)
         question_text, question_id = choice(available_questions)
-        print('quest_id: ', question_id)
+        # print('quest_id: ', question_id)
 
         # Получаем список вариантов ответов, и их id, на конкретный вопрос:
         answer_options = sql_handler.get_info(__cfg.config_sql, sql_request.sql_request_lib['answer_options'], question_id)
-        print(answer_options)
+        # print(answer_options)
 
         kb = types.InlineKeyboardMarkup()
         button_list = []
@@ -162,7 +162,7 @@ async def checking_responses(query):
     # Проверям какой ответ выбрал пользователь, если правильный - записываем в бд(ответ)
     if query.data[-4:] == 'True':
         data_list = query.data.split('_')
-        print(data_list)
+        # print(data_list)
 
         # quiz_id = data_list[1]
         # question_id = data_list[2]
