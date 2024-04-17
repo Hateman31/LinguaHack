@@ -53,6 +53,11 @@ async def get_voice(msg):
     else:
         print(f"\033[32mAccepted voice func to user {msg.from_user.id}: {msg.from_user.username}")
 
+    if msg.voice.duration >= 10:
+        await bot.reply_to(msg, "Please do not send voicemails longer than 10 seconds.\n"
+                                "(Пожалуйста, не отправляйте голосовые сообщения длиннее 10 секунд.)")
+        return
+
     file_info = await bot.get_file(msg.voice.file_id)
     downloaded_file = await bot.download_file(file_info.file_path)
 
