@@ -12,7 +12,7 @@ __config = __aai.TranscriptionConfig(
 __transcriber = __aai.Transcriber(config=__config)
 
 
-def recognize(audio_file) -> str | None:
+async def recognize(audio_file) -> str | None:
     """
     RECOGNIZE FUNCTION
 

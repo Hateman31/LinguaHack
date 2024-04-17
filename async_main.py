@@ -1,4 +1,5 @@
 from telebot.async_telebot import AsyncTeleBot
+from telebot import types
 import telebot
 import logging
 import asyncio
@@ -56,7 +57,7 @@ def next_state(user_id):
             jsonFile.truncate()
 
 
-def add_state(user_id):
+def add_state_0(user_id):
     with open("users_states.json", "r+") as jsonFile:
         data = json.load(jsonFile)
         if str(user_id) in data:
@@ -70,12 +71,10 @@ def add_state(user_id):
 
 @bot.message_handler(commands=['study'])
 async def start(msg):
-    add_state(msg.from_user.id)
+    add_state_0(msg.from_user.id)
     button = types.InlineKeyboardButton("Let's go☕", callback_data='quiz')
     kb = types.InlineKeyboardMarkup().add(button)
     await bot.send_message(msg.chat.id, f'Желаете начать обучение?', reply_markup=kb)
-
-
 
 
 @bot.callback_query_handler(func=lambda call: re.match(r'quiz', call.data))
@@ -90,7 +89,7 @@ async def issue_of_quizzes(query):
     else:
         user_quiz_id = is_registered[0]
     # user_quiz_id - хранит на каком квизе пользователь
-    print("ID квиза, пользователя:", user_quiz_id)
+    print("ID квиза, пользователя:", user_quiz_id, "в users_states -", )
 
     button = types.InlineKeyboardButton('Пройти квиз☕', callback_data=f'quest_{user_quiz_id}')
     kb = types.InlineKeyboardMarkup().add(button)
@@ -185,5 +184,42 @@ async def rewrite(query):
     sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['delete_user_answers'], query.from_user.id)
     query.data = f'quiz'
     await issue_of_quizzes(query)
+
+
+@bot.message_handler(content_types=['voice'])
+async def get_voice(msg):
+    if get_state(msg.from_user.id) != 4:
+        print(f"\033[31mRejected voice func to user {msg.from_user.id}: {msg.from_user.username}, "
+              f"state {get_state(msg.from_user.id)}")
+        return
+    else:
+        print(f"\033[32mAccepted voice func to user {msg.from_user.id}: {msg.from_user.username}")
+
+    if msg.voice.duration >= 10:
+        await bot.reply_to(msg, "Please do not send voicemails longer than 10 seconds.\n"
+                                "(Пожалуйста, не отправляйте голосовые сообщения длиннее 10 секунд.)")
+        return
+
+    file_info = await bot.get_file(msg.voice.file_id)
+    downloaded_file = await bot.download_file(file_info.file_path)
+
+    print('\033[33mDownloading file...')
+
+    fpath = f'./audio/{file_info.file_unique_id}.ogg'
+
+    with open(fpath, 'wb') as new_file:
+        new_file.write(downloaded_file)
+
+    print(f'\033[33mFile downloaded. Start recognition {fpath}... ')
+    text = recognition.recognize(fpath)
+    if text == "empty_message":
+        print(f"Message from {msg.from_user.id}: {msg.from_user.username} - is empty.")
+        await bot.reply_to(msg, "Please, say something in voice message.\n"
+                                "(Пожалуйста, скажите что-нибудь в голосовом сообщении.)")
+    else:
+        print(f'\033[32mRecognition finished! Text: \033[0m{text}')
+        await bot.reply_to(msg, text)
+
+    os.remove(fpath)
 
 asyncio.run(bot.polling())
