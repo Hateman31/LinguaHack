@@ -6,7 +6,7 @@ __aai.settings.api_key = __cfg.speech_recognition_token
 
 __config = __aai.TranscriptionConfig(
     language_detection=False,
-    language_code=__aai.LanguageCode.ru
+    language_code=__aai.LanguageCode.en
 )
 
 __transcriber = __aai.Transcriber(config=__config)
@@ -21,5 +21,5 @@ def recognize(audio_file) -> str | None:
     """
     result = __transcriber.transcribe(audio_file).text
     if result == "":
-        return "empty"
+        return "empty_message"
     return result

@@ -12,6 +12,7 @@ import recognition as rcg
 telebot.logger.setLevel(logging.INFO)
 bot = telebot.TeleBot(config.token)
 
+
 @bot.message_handler(commands=['study'])
 def start(msg):
     kb = types.InlineKeyboardMarkup()
