@@ -4,8 +4,8 @@ CREATE TABLE quizzes (
     title VARCHAR(255),
     subtitle_file_id BIGINT,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы вопросов
@@ -13,8 +13,8 @@ CREATE TABLE questions (
     question_id serial PRIMARY KEY ,
     quiz_id INT,
     question_text TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
 );
 
@@ -24,8 +24,8 @@ CREATE TABLE options (
     question_id INT,
     option_text TEXT,
     is_correct BOOLEAN,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE
 );
 
@@ -36,7 +36,7 @@ CREATE TABLE user_answers (
     question_id INT,
     user_id INT,
     chosen_option_id INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
     FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE,
     FOREIGN KEY (chosen_option_id) REFERENCES options(option_id) ON DELETE CASCADE
@@ -45,5 +45,5 @@ CREATE TABLE user_answers (
 CREATE TABLE USERS(
     user_id int PRIMARY KEY,
     first_name VARCHAR(100),
-    last_quiz_id BIGINT
+    quiz_id BIGINT
 );
