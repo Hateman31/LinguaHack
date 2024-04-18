@@ -1,5 +1,5 @@
 import psycopg2
-from config import config_sql
+# from config import config_sql
 
 
 def check_quiz_id(conn_str, sql, user_id):
