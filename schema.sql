@@ -1,11 +1,12 @@
 -- Создание таблицы квизов
 CREATE TABLE quizzes (
     quiz_id Serial PRIMARY KEY ,
+    video_file_id TEXT,
+    sub_file_id TEXT,
     title VARCHAR(255),
-    subtitle_file_id BIGINT,
     description TEXT,
     -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Создание таблицы вопросов
