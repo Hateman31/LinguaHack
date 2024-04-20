@@ -1,5 +1,6 @@
 /audio/
 tests/output.wav
+config.py
 .gitignore
 .idea
 .venv
