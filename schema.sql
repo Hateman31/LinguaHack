@@ -36,7 +36,7 @@ CREATE TABLE user_answers (
     user_answer_id Serial PRIMARY KEY ,
     quiz_id INT,
     question_id INT,
-    user_id INT,
+    user_id BIGINT,
     chosen_option_id INT,
     -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
