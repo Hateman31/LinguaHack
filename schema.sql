@@ -4,7 +4,8 @@ CREATE TABLE quizzes (
     video_file_id TEXT,
     sub_file_id TEXT,
     title VARCHAR(255),
-    description TEXT,
+    subtitle_file_id BIGINT,
+    description TEXT
     -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     -- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -43,8 +44,17 @@ CREATE TABLE user_answers (
     FOREIGN KEY (chosen_option_id) REFERENCES options(option_id) ON DELETE CASCADE
 );
 
-CREATE TABLE USERS(
-    user_id int PRIMARY KEY,
-    first_name VARCHAR(100),
-    quiz_id BIGINT
+-- CREATE TABLE USERS(
+--     user_id BIGINT PRIMARY KEY,
+--     first_name VARCHAR(100),
+--     quiz_id BIGINT
+-- );
+
+
+CREATE TABLE users
+(
+    user_id bigint PRIMARY KEY,
+    first_name character varying (255),
+    quiz_id integer,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
 );
