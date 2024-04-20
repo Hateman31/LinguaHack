@@ -80,10 +80,10 @@ async def start(msg):
 @bot.callback_query_handler(func=lambda call: re.match(r'quiz', call.data))
 async def issue_of_quizzes(query):
     # Проверяем есть ли пользователь в БД (если нет - записываем в бд, и ставим на 1-ый урок):
-    is_registered = sql_handler.check_quiz_id(__cfg.config_sql, sql_request.sql_request_lib['check_quiz_id'],
+    is_registered = sql_handler.check_quiz_id(__cfg.conn_str, sql_request.sql_request_lib['check_quiz_id'],
                                               query.from_user.id)
     if not is_registered:
-        sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['write_user'], query.from_user.id,
+        sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['write_user'], query.from_user.id,
                                  query.from_user.first_name, 1)
         user_quiz_id = 1
     else:
@@ -101,10 +101,10 @@ async def issue_of_quizzes(query):
 @bot.callback_query_handler(func=lambda call: re.match(r'quest_', call.data))
 async def issue_of_questions(query):
     # Вывод, не пройденных, вопросов и варианты ответов:
-    quiz_id = sql_handler.check_quiz_id(__cfg.config_sql, sql_request.sql_request_lib['check_quiz_id'],
+    quiz_id = sql_handler.check_quiz_id(__cfg.conn_str, sql_request.sql_request_lib['check_quiz_id'],
                                         query.from_user.id)[0]
     # Получаем список, не пройденных, вопросов и их id, по конкретному квизу:
-    available_questions = sql_handler.get_available_quest(__cfg.config_sql, sql_request.sql_request_lib['available_quest'],
+    available_questions = sql_handler.get_available_quest(__cfg.conn_str, sql_request.sql_request_lib['available_quest'],
                                                           query.from_user.id, quiz_id)
 
     # print(quiz_id)
@@ -114,7 +114,7 @@ async def issue_of_questions(query):
         # print('quest_id: ', question_id)
 
         # Получаем список вариантов ответов, и их id, на конкретный вопрос:
-        answer_options = sql_handler.get_info(__cfg.config_sql, sql_request.sql_request_lib['answer_options'], question_id)
+        answer_options = sql_handler.get_info(__cfg.conn_str, sql_request.sql_request_lib['answer_options'], question_id)
         # print(answer_options)
 
         kb = types.InlineKeyboardMarkup()
@@ -131,11 +131,11 @@ async def issue_of_questions(query):
     else:
         next_quiz_id = int(quiz_id) + 1
 
-        next_available_questions = sql_handler.get_available_quest(__cfg.config_sql,
+        next_available_questions = sql_handler.get_available_quest(__cfg.conn_str,
                                                                    sql_request.sql_request_lib['available_quest'],
                                                                    query.from_user.id, next_quiz_id)
         if next_available_questions:
-            sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['update_quiz_id'], next_quiz_id,
+            sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], next_quiz_id,
                                      query.from_user.id)
 
             kb = types.InlineKeyboardMarkup()
@@ -168,7 +168,7 @@ async def checking_responses(query):
         # question_id = data_list[2]
         # user_id = query.from_user.id
         # chosen_option_id = data_list[3]
-        sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['write_correct_answer'], data_list[1],
+        sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['write_correct_answer'], data_list[1],
                                  data_list[2], query.from_user.id, data_list[3])
 
         query.data = f'quest_{data_list[1]}'
@@ -180,8 +180,8 @@ async def checking_responses(query):
 
 @bot.callback_query_handler(func=lambda call: re.match(r'restart', call.data))
 async def rewrite(query):
-    sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['update_quiz_id'], 1, query.from_user.id)
-    sql_handler.editing_info(__cfg.config_sql, sql_request.sql_request_lib['delete_user_answers'], query.from_user.id)
+    sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], 1, query.from_user.id)
+    sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['delete_user_answers'], query.from_user.id)
     query.data = f'quiz'
     await issue_of_quizzes(query)
 
