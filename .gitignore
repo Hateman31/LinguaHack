@@ -1,6 +1,7 @@
 /audio/
 tests/output.wav
 config.py
+users_states.json
 .gitignore
 .idea
 .venv

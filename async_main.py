@@ -211,7 +211,7 @@ async def get_voice(msg):
         new_file.write(downloaded_file)
 
     print(f'\033[33mFile downloaded. Start recognition {fpath}... ')
-    text = recognition.recognize(fpath)
+    text = await recognition.recognize(fpath)
     if text == "empty_message":
         print(f"Message from {msg.from_user.id}: {msg.from_user.username} - is empty.")
         await bot.reply_to(msg, "Please, say something in voice message.\n"
