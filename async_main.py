@@ -3,6 +3,7 @@ from telebot import types
 import telebot
 import logging
 import asyncio
+from vedis import Vedis
 
 import sql_request
 import sql_handler
@@ -14,14 +15,16 @@ from random import choice
 import json
 import os
 import re
+import utils
 
 
 telebot.async_telebot.logger.setLevel(logging.INFO)
 bot = AsyncTeleBot(__cfg.token)
 
+db = Vedis(':mem:')
 
 bot.set_my_commands(
-    commands=[types.BotCommand('/study', 'Время пить чай🍵')])
+    commands=[types.BotCommand('/start', 'Время пить чай🍵')])
 
 
 def reset_state(user_id):
@@ -69,7 +72,7 @@ def add_state_0(user_id):
             jsonFile.truncate()
 
 
-@bot.message_handler(commands=['study'])
+@bot.message_handler(commands=['start'])
 async def start(msg):
     add_state_0(msg.from_user.id)
     button = types.InlineKeyboardButton("Let's go☕", callback_data='quiz')
@@ -89,13 +92,26 @@ async def issue_of_quizzes(query):
     else:
         user_quiz_id = is_registered[0]
     # user_quiz_id - хранит на каком квизе пользователь
-    # print("ID квиза, пользователя:", user_quiz_id, "в users_states -", )
+    print("ID квиза, пользователя:", user_quiz_id, "в users_states -", )
 
     button = types.InlineKeyboardButton('Пройти квиз☕', callback_data=f'quest_{user_quiz_id}')
     kb = types.InlineKeyboardMarkup().add(button)
+    await bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.id)
 
-    await bot.edit_message_text(chat_id=query.message.chat.id, message_id=query.message.id,
-                                text=f"Квиз №{user_quiz_id}", reply_markup=kb)
+    if query.from_user.id in db:
+        message_id = int(db[query.from_user.id])
+        await bot.delete_message(query.message.chat.id, message_id=message_id)
+    quiz_video_msg = await bot.send_video(chat_id=query.message.chat.id, video=utils.get_video(user_quiz_id))
+    db[query.from_user.id] = quiz_video_msg.message_id
+
+    await bot.send_message(chat_id=query.message.chat.id,
+                           text=f"Квиз №{user_quiz_id}", reply_markup=kb)
+
+    # await bot.send_video(chat_id=query.message.chat.id,
+    #                     video=utils.get_video(user_quiz_id))
+    #
+    # await bot.edit_message_text(chat_id=query.message.chat.id, message_id=query.message.id,
+    #                             text=f"Квиз №{user_quiz_id}", reply_markup=kb)
 
 
 @bot.callback_query_handler(func=lambda call: re.match(r'quest_', call.data))
@@ -135,15 +151,12 @@ async def issue_of_questions(query):
                                                                    sql_request.sql_request_lib['available_quest'],
                                                                    query.from_user.id, next_quiz_id)
         if next_available_questions:
-            sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], next_quiz_id,
-                                     query.from_user.id)
-
-            kb = types.InlineKeyboardMarkup()
-            button = types.InlineKeyboardButton("Let's go next☕", callback_data='quiz')
-            kb.add(button)
-
+            # sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], next_quiz_id,
+            #                          query.from_user.id)
+            db[query.message.chat.id] = quiz_id
+            questions = sql_handler.get_speech_test(__cfg.conn_str, quiz_id)
             await bot.edit_message_text(chat_id=query.message.chat.id, message_id=query.message.id,
-                                        text=f'Поздравляем, вы прошли {quiz_id} квиз🎉', reply_markup=kb)
+                                        text=f'Ответьте на вопрос: {questions}. Пришлите аудио сообщение не более 10 секунд')
         else:
             kb = types.InlineKeyboardMarkup()
             button = types.InlineKeyboardButton("Начать заново?♾",
@@ -188,11 +201,14 @@ async def rewrite(query):
 
 @bot.message_handler(content_types=['voice'])
 async def get_voice(msg):
-    if get_state(msg.from_user.id) != 4:
+    quiz_id = None
+    # if get_state(msg.from_user.id) != 4:
+    if not(msg.chat.id in db):
         print(f"\033[31mRejected voice func to user {msg.from_user.id}: {msg.from_user.username}, "
               f"state {get_state(msg.from_user.id)}")
         return
     else:
+        quiz_id = int(db[msg.chat.id])
         print(f"\033[32mAccepted voice func to user {msg.from_user.id}: {msg.from_user.username}")
 
     if msg.voice.duration >= 10:
@@ -211,14 +227,29 @@ async def get_voice(msg):
         new_file.write(downloaded_file)
 
     print(f'\033[33mFile downloaded. Start recognition {fpath}... ')
-    text = recognition.recognize(fpath)
+    text = await recognition.recognize(fpath)
+    text = text.strip('. ,!?;')
     if text == "empty_message":
         print(f"Message from {msg.from_user.id}: {msg.from_user.username} - is empty.")
         await bot.reply_to(msg, "Please, say something in voice message.\n"
                                 "(Пожалуйста, скажите что-нибудь в голосовом сообщении.)")
     else:
         print(f'\033[32mRecognition finished! Text: \033[0m{text}')
-        await bot.reply_to(msg, text)
+
+        if sql_handler.check_answer(__cfg.conn_str, user_answer=text, quiz_id=quiz_id):
+            sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], quiz_id + 1,
+                                     msg.from_user.id)
+            kb = types.InlineKeyboardMarkup()
+            button = types.InlineKeyboardButton("Let's go next☕", callback_data='quiz')
+            kb.add(button)
+
+            await bot.delete_message(msg.chat.id, msg.id)
+            del db[msg.chat.id]
+            await bot.send_message(chat_id=msg.chat.id,
+                                    text=f'Поздравляем, вы прошли {quiz_id} квиз🎉', reply_markup=kb)
+        else:
+            await bot.reply_to(msg, "Please, say something in voice message.\n"
+                                    "(Пожалуйста, скажите что-нибудь в голосовом сообщении.)")
 
     os.remove(fpath)
 

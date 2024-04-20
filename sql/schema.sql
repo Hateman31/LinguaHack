@@ -1,6 +1,6 @@
 -- Создание таблицы квизов
 CREATE TABLE quizzes (
-    quiz_id Serial PRIMARY KEY ,
+    quiz_id Serial PRIMARY KEY,
     video_file_id TEXT,
     sub_file_id TEXT,
     title VARCHAR(255),
@@ -57,4 +57,11 @@ CREATE TABLE users
     first_name character varying (255),
     quiz_id integer,
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
+);
+
+CREATE TABLE speech_test
+(
+    quiz_id integer,
+    question_text text,
+    answer text
 );
