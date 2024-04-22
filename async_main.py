@@ -253,4 +253,10 @@ async def get_voice(msg):
 
     os.remove(fpath)
 
-asyncio.run(bot.polling())
+
+def main():
+    import setup
+    setup.main()
+    asyncio.run(bot.polling())
+
+main()

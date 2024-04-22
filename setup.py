@@ -6,6 +6,17 @@ create_schema_sql = open('sql/schema.sql', encoding='utf-8').read()
 fill_tables_sql = open('sql/insert_tables.sql', encoding='utf-8').read()
 
 
+def schema_completed():
+    sql = '''
+        SELECT count(1) = 5
+        FROM information_schema.tables 
+        WHERE  table_schema = 'public'
+        AND    table_name  in ('quizzes', 'options', 'user_answers', 'users', 'speech_test')'''
+    with psycopg2.connect(__cfg.conn_str) as db:
+        with db.cursor() as cursor:
+            cursor.execute(sql)
+            return cursor.fetchone()[0]
+
 def create_schema():
     with psycopg2.connect(__cfg.conn_str) as db:
         with db.cursor() as cursor:
@@ -14,10 +25,10 @@ def create_schema():
 
 
 def create_folder(folder_name):
-    audio_folder = Path.cwd() / folder_name
-    if not audio_folder.exists():
-        audio_folder.mkdir()
-        print(f'Folder for {folder_name} was created!')
+    folder = Path.cwd() / folder_name
+    if not folder.exists():
+        folder.mkdir()
+        print(f'Folder for {folder} was created!')
 
 
 def fill_the_tables():
@@ -31,9 +42,9 @@ def fill_the_tables():
 def main():
     for f in ['audio', 'media']:
         create_folder(f)
-    create_schema()
-    fill_the_tables()
-
+    if not schema_completed():
+        create_schema()
+        fill_the_tables()
 
 if __name__ == '__main__':
     main()
