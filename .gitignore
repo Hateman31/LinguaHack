@@ -1,4 +1,6 @@
 /audio/
+/media
+users_states.json
 tests/output.wav
 config.py
 .gitignore
