@@ -150,14 +150,12 @@ async def issue_of_questions(query):
         next_available_questions = sql_handler.get_available_quest(__cfg.conn_str,
                                                                    sql_request.sql_request_lib['available_quest'],
                                                                    query.from_user.id, next_quiz_id)
-        if next_available_questions:
-            # sql_handler.editing_info(__cfg.conn_str, sql_request.sql_request_lib['update_quiz_id'], next_quiz_id,
-            #                          query.from_user.id)
+        if query.message.chat.id in db:
             db[query.message.chat.id] = quiz_id
             questions = sql_handler.get_speech_test(__cfg.conn_str, quiz_id)
             await bot.edit_message_text(chat_id=query.message.chat.id, message_id=query.message.id,
                                         text=f'Ответьте на вопрос: {questions}. Пришлите аудио сообщение не более 10 секунд')
-        else:
+        elif not next_available_questions:
             kb = types.InlineKeyboardMarkup()
             button = types.InlineKeyboardButton("Начать заново?♾",
                                                 callback_data='restart')
