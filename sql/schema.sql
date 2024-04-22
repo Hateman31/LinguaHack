@@ -61,7 +61,8 @@ CREATE TABLE users
 
 CREATE TABLE speech_test
 (
-    quiz_id integer,
+    quiz_id int PRIMARY KEY,
     question_text text,
-    answer text
+    answer text,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
 );

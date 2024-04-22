@@ -27,4 +27,4 @@ INSERT INTO public.options (question_id, option_text, is_correct) VALUES (4, 'hu
 INSERT INTO public.options (question_id, option_text, is_correct) VALUES (4, 'will hurry', False);
 
 INSERT INTO public.speech_test (quiz_id, question_text, answer) VALUES (1, 'What is the title of that TV show', 'Friends');
-INSERT INTO public.speech_test (quiz_id, question_text, answer) VALUES (1, 'What language do they speak in this TV series?', 'English');
+INSERT INTO public.speech_test (quiz_id, question_text, answer) VALUES (2, 'What language do they speak in this TV series?', 'English');
