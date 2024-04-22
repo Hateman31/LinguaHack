@@ -13,11 +13,11 @@ def create_schema():
             print('Schema created!')
 
 
-def create_folders():
-    audio_folder = Path.cwd() / 'audio'
+def create_folder(folder_name):
+    audio_folder = Path.cwd() / folder_name
     if not audio_folder.exists():
         audio_folder.mkdir()
-    print('Folder for audio was created!')
+        print(f'Folder for {folder_name} was created!')
 
 
 def fill_the_tables():
@@ -29,7 +29,8 @@ def fill_the_tables():
 
 
 def main():
-    create_folders()
+    for f in ['audio', 'media']:
+        create_folder(f)
     create_schema()
     fill_the_tables()
 
