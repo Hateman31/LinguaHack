@@ -54,8 +54,23 @@ def get_speech_test(conn_str, quiz_id):
             result = cursor.fetchone()
             print(quiz_id)
 
-            return result[0]
+            return result[0] if result else None
 
 if __name__ == '__main__':
-    import config
-    print(get_speech_test(config.conn_str, 1))
+    import config as __cfg
+    import sql_request as sql
+    # 306998112
+    print(
+        check_quiz_id(
+            __cfg.conn_str
+            , sql.sql_request_lib['check_quiz_id']
+            ,306998112)[0]
+    )
+    print(
+        get_available_quest(
+            __cfg.conn_str
+            , sql.sql_request_lib['available_quest']
+            , 306998112
+            , 3
+        )
+    )

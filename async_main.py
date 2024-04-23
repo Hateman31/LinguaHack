@@ -117,13 +117,15 @@ async def issue_of_quizzes(query):
 @bot.callback_query_handler(func=lambda call: re.match(r'quest_', call.data))
 async def issue_of_questions(query):
     # Вывод, не пройденных, вопросов и варианты ответов:
+
     quiz_id = sql_handler.check_quiz_id(__cfg.conn_str, sql_request.sql_request_lib['check_quiz_id'],
                                         query.from_user.id)[0]
+
     # Получаем список, не пройденных, вопросов и их id, по конкретному квизу:
     available_questions = sql_handler.get_available_quest(__cfg.conn_str, sql_request.sql_request_lib['available_quest'],
                                                           query.from_user.id, quiz_id)
 
-    # print(quiz_id)
+
     if query.data[6:] == f'{quiz_id}' and available_questions:
         # print(available_questions)
         question_text, question_id = choice(available_questions)
@@ -150,11 +152,11 @@ async def issue_of_questions(query):
         next_available_questions = sql_handler.get_available_quest(__cfg.conn_str,
                                                                    sql_request.sql_request_lib['available_quest'],
                                                                    query.from_user.id, next_quiz_id)
-        if query.message.chat.id in db:
+        speech_test = sql_handler.get_speech_test(__cfg.conn_str, quiz_id)
+        if query.message.chat.id in db and speech_test:
             db[query.message.chat.id] = quiz_id
-            questions = sql_handler.get_speech_test(__cfg.conn_str, quiz_id)
             await bot.edit_message_text(chat_id=query.message.chat.id, message_id=query.message.id,
-                                        text=f'Ответьте на вопрос: {questions}. Пришлите аудио сообщение не более 10 секунд')
+                                        text=f'Ответьте на вопрос: {speech_test}. Пришлите аудио сообщение не более 10 секунд')
         elif not next_available_questions:
             kb = types.InlineKeyboardMarkup()
             button = types.InlineKeyboardButton("Начать заново?♾",
